@@ -13,7 +13,7 @@ type target struct {
 	id, path string
 }
 
-func tidy(config *notes.Config) error {
+func tidy(config *notes.Config, args []string) error {
 	cats, err := notes.CollectCategories(config, 0)
 	if err != nil {
 		return err

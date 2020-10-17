@@ -9,9 +9,13 @@ import (
 	"github.com/rhysd/notes-cli"
 )
 
-func importResources(config *notes.Config, sources []string, target string) error {
-	for _, s := range sources {
-		if err := importResource(config, s, target); err != nil {
+func importResources(config *notes.Config, args []string) error {
+	if len(args) < 2 {
+		return errInvalidArgument
+	}
+	resources, target := args[:len(args)-1], args[len(args)-1]
+	for _, r := range resources {
+		if err := importResource(config, r, target); err != nil {
 			return err
 		}
 	}

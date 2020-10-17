@@ -7,7 +7,11 @@ import (
 	"github.com/rhysd/notes-cli"
 )
 
-func listDepends(config *notes.Config, note string) error {
+func listDepends(config *notes.Config, args []string) error {
+	if len(args) < 1 {
+		return errInvalidArgument
+	}
+	note := args[0]
 	f, err := os.Open(note)
 	if err != nil {
 		return err

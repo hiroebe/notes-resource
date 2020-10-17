@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/jessevdk/go-flags"
@@ -12,6 +13,8 @@ var opts struct {
 	Depends bool `short:"d" long:"depends" description:"List resources which the note depends"`
 	// TODO: --prune
 }
+
+var errInvalidArgument = errors.New("invalid argument")
 
 func help() error {
 	_, err := fmt.Println(`Usage:
@@ -36,25 +39,20 @@ func run() error {
 	}
 
 	if opts.Tidy {
-		return tidy(config)
+		return tidy(config, args)
 	}
 	if opts.Depends {
-		if len(args) < 1 {
-			return help()
-		}
-		return listDepends(config, args[0])
+		return listDepends(config, args)
 	}
-
-	if len(args) < 2 {
-		return help()
-	}
-
-	resources, target := args[:len(args)-1], args[len(args)-1]
-	return importResources(config, resources, target)
+	return importResources(config, args)
 }
 
 func main() {
 	if err := run(); err != nil {
+		if err == errInvalidArgument {
+			help()
+			return
+		}
 		panic(err)
 	}
 }
