@@ -11,7 +11,7 @@ import (
 var opts struct {
 	Tidy    bool `short:"t" long:"tidy" description:"Move resources to the proper directory"`
 	Depends bool `short:"d" long:"depends" description:"List resources which the note depends"`
-	// TODO: --prune
+	Unused  bool `short:"u" long:"unused" description:"List unused resources"`
 }
 
 var errInvalidArgument = errors.New("invalid argument")
@@ -20,7 +20,8 @@ func help() error {
 	_, err := fmt.Println(`Usage:
   notes resource RESOURCE [RESOURCE...] TARGET
   notes resource --tidy
-  notes resource --depends NOTE`)
+  notes resource --depends NOTE
+  notes resource --unused`)
 	return err
 }
 
@@ -43,6 +44,9 @@ func run() error {
 	}
 	if opts.Depends {
 		return listDepends(config, args)
+	}
+	if opts.Unused {
+		return listUnused(config, args)
 	}
 	return importResources(config, args)
 }

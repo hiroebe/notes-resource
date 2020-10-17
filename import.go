@@ -40,7 +40,8 @@ func importResource(config *notes.Config, source, target string) error {
 		dir = filepath.Dir(target)
 	}
 
-	out := filepath.Join(dir, addID(filepath.Base(source)))
+	outFile := createResource(filepath.Base(source)).getPath()
+	out := filepath.Join(dir, outFile)
 	if _, err := os.Stat(out); err == nil {
 		return fmt.Errorf("file already exists: %s", out)
 	}

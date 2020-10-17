@@ -18,12 +18,12 @@ func listDepends(config *notes.Config, args []string) error {
 	}
 	defer f.Close()
 
-	resources, err := findResourcesInFile(note)
+	resources, err := findResourcesInMarkdown(note)
 	if err != nil {
 		return err
 	}
 	for _, r := range resources {
-		fmt.Println(r)
+		fmt.Println(r.getPath())
 	}
 	return nil
 }

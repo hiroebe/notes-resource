@@ -21,14 +21,14 @@ func tidy(config *notes.Config, args []string) error {
 	targets := []target{}
 	for _, cat := range cats {
 		for _, path := range cat.NotePaths {
-			resources, err := findResourcesInFile(path)
+			resources, err := findResourcesInMarkdown(path)
 			if err != nil {
 				fmt.Println(err)
 			}
 			for _, r := range resources {
 				targets = append(targets, target{
-					id:   extractID(r),
-					path: filepath.Join(path, "..", filepath.FromSlash(r)),
+					id:   r.id,
+					path: filepath.Join(path, "..", r.getPath()),
 				})
 			}
 		}
