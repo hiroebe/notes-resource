@@ -55,7 +55,7 @@ func tidy(config *notes.Config) error {
 				}
 				targets = append(targets, target{
 					id:   extractID(fname),
-					path: filepath.Join(path, "..", fname),
+					path: filepath.Join(path, "..", filepath.FromSlash(fname)),
 				})
 			}
 		}
@@ -73,9 +73,13 @@ func tidy(config *notes.Config) error {
 		if match == t.path {
 			continue
 		}
+		if err := os.MkdirAll(filepath.Dir(t.path), 0755); err != nil {
+			return err
+		}
 		if err := os.Rename(match, t.path); err != nil {
 			return err
 		}
+		removeDirRec(filepath.Dir(match))
 		fmt.Printf("Successfully moved %s to %s\n", match, t.path)
 	}
 	return nil
@@ -96,6 +100,16 @@ func findMatchInFile(path string, pattern *regexp.Regexp) ([][]string, error) {
 		}
 	}
 	return matches, nil
+}
+
+func removeDirRec(dir string) {
+	for {
+		// Remove directory if empty
+		if err := os.Remove(dir); err != nil {
+			break
+		}
+		dir = filepath.Dir(dir)
+	}
 }
 
 func importResources(config *notes.Config, sources []string, target string) error {
