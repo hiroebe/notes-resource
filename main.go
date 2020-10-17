@@ -8,15 +8,16 @@ import (
 )
 
 var opts struct {
-	Tidy bool `short:"t" long:"tidy" description:"Move resources to the proper directory"`
-	// TODO: --depends
+	Tidy    bool `short:"t" long:"tidy" description:"Move resources to the proper directory"`
+	Depends bool `short:"d" long:"depends" description:"List resources which the note depends"`
 	// TODO: --prune
 }
 
 func help() error {
 	_, err := fmt.Println(`Usage:
   notes resource RESOURCE [RESOURCE...] TARGET
-  notes resource --tidy`)
+  notes resource --tidy
+  notes resource --depends NOTE`)
 	return err
 }
 
@@ -26,6 +27,9 @@ func run() error {
 		return err
 	}
 
+	// args are like ["notes" "resource" "ARG1" "ARG2"]
+	args = args[2:]
+
 	config, err := notes.NewConfig()
 	if err != nil {
 		return err
@@ -34,9 +38,12 @@ func run() error {
 	if opts.Tidy {
 		return tidy(config)
 	}
-
-	// args are like ["notes" "resource" "RESOURCE" "TARGET"]
-	args = args[2:]
+	if opts.Depends {
+		if len(args) < 1 {
+			return help()
+		}
+		return listDepends(config, args[0])
+	}
 
 	if len(args) < 2 {
 		return help()

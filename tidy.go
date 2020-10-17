@@ -1,12 +1,9 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
-	"strings"
 
 	"github.com/mattn/go-zglob"
 	"github.com/rhysd/notes-cli"
@@ -21,25 +18,17 @@ func tidy(config *notes.Config) error {
 	if err != nil {
 		return err
 	}
-	pattern, err := regexp.Compile(`\((\S*[0-9a-v]{20}\.\S+)\)`)
-	if err != nil {
-		return err
-	}
 	targets := []target{}
 	for _, cat := range cats {
 		for _, path := range cat.NotePaths {
-			matches, err := findMatchInFile(path, pattern)
+			resources, err := findResourcesInFile(path)
 			if err != nil {
 				fmt.Println(err)
 			}
-			for _, m := range matches {
-				fname := m[1]
-				if strings.HasPrefix(fname, "http") {
-					continue
-				}
+			for _, r := range resources {
 				targets = append(targets, target{
-					id:   extractID(fname),
-					path: filepath.Join(path, "..", filepath.FromSlash(fname)),
+					id:   extractID(r),
+					path: filepath.Join(path, "..", filepath.FromSlash(r)),
 				})
 			}
 		}
@@ -67,23 +56,6 @@ func tidy(config *notes.Config) error {
 		fmt.Printf("Successfully moved %s to %s\n", match, t.path)
 	}
 	return nil
-}
-
-func findMatchInFile(path string, pattern *regexp.Regexp) ([][]string, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-
-	scanner := bufio.NewScanner(f)
-	matches := [][]string{}
-	for scanner.Scan() {
-		for _, m := range pattern.FindAllStringSubmatch(scanner.Text(), -1) {
-			matches = append(matches, m)
-		}
-	}
-	return matches, nil
 }
 
 func removeDirRec(dir string) {
